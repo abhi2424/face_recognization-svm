@@ -1,30 +1,43 @@
-# database-modification
-d={'name':['a','b','c','d','e'],'m':[41,75,30,60,65],'e':[40,75,35,62,53],'h':[59,72,21,89,46]}
-passed=[]
-failstd=[]
-add=[]
-c=0
-for i in range(5):
-    add=add+[d['m'][i]+d['h'][i]+d['e'][i]]
-    print(add)
-    if(d['m'][i]>40 and d['h'][i]>40 and d['e'][1]>40  and (add[i]/3)>60):
-        passed=passed+[d['name'][i]]
-    else:
-        failstd=failstd+[d['name'][i]]
-
-
-print(passed)
-print(failstd)
-
-
-max1=add[0]
-for i in range(len(add)):
-    if(max1<add[i]):
-        max1=add[i]
-        p=i;
-topper=d['name'][p]
-print(topper)
-data={'passed':passed,'failstd':failstd,'topper':topper}
-print(data)
-
+from sklearn import svm,metrics
+import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.image as mimg
+#########################################################training strats##############################################################################################
+num_sample=7
+train_data=np.zeros((num_sample*40,10304))
+train_target=np.zeros((num_sample*40))
+c1=-1
+for i in range(1,41):
+    for j in range(1,num_sample+1):
+        c1=c1+1
+        im=mimg.imread('C:\\Users\\CG-DTE\\Downloads\\orl_face\\orl_face\\u%d\\%d.png'%(i,j))
+        feat=im.reshape(1,-1)
+        train_data[c1,:]=feat
+        train_target[c1]=i
+        #plt.figure(1)
+        #plt.imshow(im,cmap='gray')
+        #plt.axis('off')
+        #plt.title(['user no',str(i),',samp no',str(j)])
+        #plt.pause(0.3)
+##########################################################training ends#############################################################################################        
+##########################################################testing starts##############################################################################################        
+test_data=np.zeros(((10-num_sample)*40,10304))
+test_target=np.zeros(((10-num_sample)*40))
+c1=-1
+for i in range(1,41):
+    for j in range(num_sample+1,10+1):
+        c1=c1+1
+        im=mimg.imread('C:\\Users\\CG-DTE\\Downloads\\orl_face\\orl_face\\u%d\\%d.png'%(i,j))
+        feat=im.reshape(1,-1)
+        test_data[c1,:]=feat
+        test_target[c1]=i
+svm_model=svm.SVC(kernel='rbf')
+svm_model=svm_model.fit(train_data,train_target)
+output=svm_model.predict(test_data)
+acc=metrics.accuracy_score(test_target,output)
+print('accuracy is ::',acc)
+print('confusion maetrics')
+print(metrics.confusion_matrix(test_target,output))
+print('report is')
+print(metrics.classification_report(test_target,output))
           
